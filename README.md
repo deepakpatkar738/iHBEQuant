@@ -39,7 +39,7 @@ Hydrogen bonds are central to molecular recognition, crystal packing, protein fo
 
 **iHBEQuant** solves this by implementing the **Molecular Tailoring Approach (MTA)** for individual hydrogen bond energy (HBE) quantification, originally proposed by:
 
-> Ahirwar MB; Gadre SR; Deshmukh MM *J. Phys. Chem. A* **2020**, *124*, 6699–6706. https://doi.org/10.1021/acs.jpca.0c04674
+> Ahirwar MB; Gadre SR; Deshmukh MM *J. Phys. Chem. A* **2020**, *124*, 6699–6706. 
 
 In MTA, the cluster is systematically fragmented — by removing the donor monomer, the acceptor monomer, or both — and the individual HBE is recovered from the total and fragment energies without any empirical parameters. iHBEQuant fully automates this fragmentation, Gaussian job management, energy parsing, and reporting workflow.
 
@@ -266,7 +266,7 @@ HB1 (F–H···N, strongest at 16.3 kcal/mol) is the primary hydrogen bond; HB2
 
 If you use iHBEQuant in published work, please cite:
 
-1. Ahirwar MB; Gadre SR; Deshmukh MM *J. Phys. Chem. A* **2020**, *124*, 6699–6706. *(original MTA-HBE method)*
+1. Ahirwar MB; Gadre SR; Deshmukh MM *J. Phys. Chem. A* **2020**, *124*, 6699–6706. 
 2. Patkar D; Ahirwar MB; Deshmukh MM *ChemPhysChem* **2022**, *23*, e202200476.
 3. Patkar D; Ahirwar MB; Deshmukh MM *ChemPhysChem* **2022**, *23*, e202200143.
 4. Patkar D; Ahirwar MB; Deshmukh MM *New J. Chem.* **2022**, *46*, 2368–2379.
