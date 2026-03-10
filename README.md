@@ -2,7 +2,7 @@
   <img src="iHBEQuant_logo.png" alt="iHBEQuant Logo" width="320"/>
 </p>
 
-<h1 align="center">iHBEQuant — Individual Hydrogen Bond Energy Quantifier</h1>
+<h1 align="center">Individual Hydrogen Bond Energy Quantifier</h1>
 
 <p align="center">
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.7%2B-blue.svg" alt="Python 3.7+"></a>
