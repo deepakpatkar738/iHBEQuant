@@ -1,7 +1,7 @@
 """
 iHBEQuant.py - Individual Hydrogen Bond Energy Quantifier
 Author : Deepak Patkar
-Version: 1.1
+Version: 1.2
 Usage  : python iHBEQuant.py [-c INPUT.cfg] [-v]
 
 File-naming convention (example prefix = F1O2):
