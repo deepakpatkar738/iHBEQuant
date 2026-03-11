@@ -1,0 +1,12 @@
+%chk=F1O2/F1O2_mono_M3.chk
+%nproc=16
+%mem=16GB
+#P MP2/aug-cc-pVTZ SP nosymm scf=tight
+
+F1O2 monomer M3 | F7-H8
+
+0 1
+F      -0.86722900   -1.33084300    0.00700300
+H      -1.04222400   -0.39098500   -0.03624300
+
+

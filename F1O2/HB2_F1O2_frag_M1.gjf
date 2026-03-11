@@ -1,0 +1,15 @@
+%chk=F1O2/HB2_F1O2_frag_M1.chk
+%nproc=16
+%mem=16GB
+#P MP2/aug-cc-pVTZ SP nosymm scf=tight
+
+HB2 primary frag (acceptor side) | removed donor M2=O4-H6-H5
+
+0 1
+O      -0.85290300    1.23581500   -0.12714800
+H      -1.14461800    1.75668800    0.63218600
+H       0.12270200    1.19189000   -0.05456600
+F      -0.86722900   -1.33084300    0.00700300
+H      -1.04222400   -0.39098500   -0.03624300
+
+
