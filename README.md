@@ -2,16 +2,16 @@
   <img src="iHBEQuant_logo.png" alt="iHBEQuant Logo" width="320"/>
 </p>
 
-<h1 align="center">Individual Hydrogen Bond Energy Quantifier</h1>
+<h1 align="center">iHBEQuant — Individual Hydrogen Bond Energy Quantifier</h1>
 
 <p align="center">
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.7%2B-blue.svg" alt="Python 3.7+"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
-  <img src="https://img.shields.io/badge/version-1.1-orange.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.2-orange.svg" alt="Version">
   <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg" alt="Platform">
 </p>
 
-**iHBEQuant** is a Python tool that automates the quantification of individual hydrogen bond (HB) energies in molecular clusters using the **Molecular Tailoring Approach (MTA)**. Given a cluster geometry in XYZ format, it automatically detects hydrogen bonds, generates all required Gaussian input files, optionally submits and monitors calculations, and parses the results into a clean energy summary — all driven by a single plain-text configuration file.
+**iHBEQuant** is a Python tool that automates the quantification of individual hydrogen bond (HB) energies in molecular clusters using the **Molecular Tailoring Approach (MTA)**. Given a cluster geometry in XYZ format, it automatically detects hydrogen bonds, generates all required Gaussian input files, optionally submits and monitors calculations, and parses the results into a clean energy summary in a plain-text file.
 
 ---
 
@@ -37,31 +37,33 @@
 
 Hydrogen bonds are central to molecular recognition, crystal packing, protein folding, and the bulk properties of liquids and solids. Standard quantum chemical calculations yield only a *total* interaction energy for a cluster, making it impossible to directly assess the role of each individual hydrogen bond.
 
-**iHBEQuant** solves this by implementing the **Molecular Tailoring Approach (MTA)** for individual hydrogen bond energy (HBE) quantification, originally proposed by:
-
-> Ahirwar MB; Gadre SR; Deshmukh MM *J. Phys. Chem. A* **2020**, *124*, 6699–6706. 
-
-In MTA, the cluster is systematically fragmented — by removing the donor monomer, the acceptor monomer, or both — and the individual HBE is recovered from the total and fragment energies without any empirical parameters. iHBEQuant fully automates this fragmentation, Gaussian job management, energy parsing, and reporting workflow.
+**iHBEQuant** solves this by implementing the **Molecular Tailoring Approach (MTA)** for individual hydrogen bond energy (HBE) quantification. In MTA, the cluster is systematically fragmented — by removing the donor monomer, the acceptor monomer, or both — and the individual HBE is recovered from the total and fragment energies without any empirical parameters. iHBEQuant fully automates this fragmentation, Gaussian job management, energy parsing, and reporting workflow.
 
 ---
 
 ## Features
 
 - **Automatic HB detection** — geometry-driven D–H···A search with fully configurable distance and angle thresholds
-- **Fragment generation** — seven Gaussian input (`.gjf`) files generated per hydrogen bond: `cluster`, `rmD`, `rmA`, `rmDA`, `dimerDA`, `dimerD`, `dimerA`
-- **Three run modes** — generate input files only (`gen`), auto-submit to Gaussian 16 and parse (`run`), or parse existing log files without resubmission (`cal`)
-- **Cooperative energy** — decomposes each individual HBE into an isolated-dimer component and a cooperativity contribution
-- **Binding energy and MTA error** — computes the total cluster binding energy and cross-validates it against the sum of individual HBEs
-- **Multi-file batch processing** — accepts a space-separated list of `.xyz` files in `INPUT.cfg`; processes them sequentially
-- **Supports DFT, MP2, CCSD(T)** — compatible with any single-point method available in Gaussian 16
-- **Zero dependencies** — uses Python standard library only; no `pip install` required
+- **Clear file-naming convention** — all files written into a per-system subdirectory:
+  - Parent molecule: `F1O2_M.xyz`, `F1O2_M.gjf`
+  - Monomers: `F1O2_mono_M1.gjf`, `_mono_M2.gjf`, …
+  - Primary fragments: `HB1_F1O2_frag_M1.gjf` (donor side), `HB1_F1O2_frag_M3.gjf` (acceptor side)
+  - Overlap fragment: `HB1_F1O2_frag_M1M3.gjf`
+  - Dimer: `HB1_F1O2_dimer_M1M3.gjf`
+- **Three run modes** — `gen` (write files only), `run` (submit to Gaussian 16), `cal` (parse existing logs)
+- **MTA, dimer, and cooperative energies** — decomposes each HBE into in-cluster MTA, pairwise dimer, and cooperativity contributions
+- **Binding energy and MTA error** — total cluster binding energy cross-validated against the sum of individual HBEs
+- **Coordinates embedded in summary** — all fragment geometries written directly into `_summary.txt`
+- **Multi-file batch processing** — space-separated `.xyz` list in `INPUT.cfg`, processed sequentially
+- **Supports DFT, MP2, CCSD(T)** — any single-point method available in Gaussian 16
+- **Zero dependencies** — Python standard library only; no `pip install` required
 
 ---
 
 ## Requirements
 
 - **Python 3.7+**
-- **[Gaussian 16](https://gaussian.com/)** with `g16` accessible on the system PATH — required only for `run` and `cal` modes; `gen` mode works without Gaussian
+- **[Gaussian 16](https://gaussian.com/)** with `g16` on the system PATH — required only for `run` and `cal` modes; `gen` mode works without Gaussian
 
 ---
 
@@ -72,7 +74,7 @@ git clone https://github.com/deepakpatkar738/iHBEQuant.git
 cd iHBEQuant
 ```
 
-No compilation or package installation is needed. Run the script directly:
+No compilation or package installation needed:
 
 ```bash
 python iHBEQuant.py
@@ -82,7 +84,7 @@ python iHBEQuant.py
 
 ## Quick Start
 
-1. Place your cluster geometry as a standard XYZ file (e.g., `F1N2.xyz`) in the working directory.
+1. Place your cluster geometry as a standard XYZ file (e.g., `F1O2.xyz`) in the working directory.
 2. Edit `INPUT.cfg` — set the XYZ filename, method, basis set, charge, multiplicity, and run mode.
 3. Run:
 
@@ -90,21 +92,16 @@ python iHBEQuant.py
 python iHBEQuant.py
 ```
 
-Results are written to a subdirectory named after your XYZ file (e.g., `F1N2/`).
+Results appear in a subdirectory named after your XYZ file (e.g., `F1O2/`).
 
 ---
 
 ## Usage
 
 ```bash
-# Use default INPUT.cfg in the current directory
-python iHBEQuant.py
-
-# Specify a custom configuration file
-python iHBEQuant.py -c myrun.cfg
-
-# Verbose mode — prints the name of every .gjf file as it is written
-python iHBEQuant.py -c myrun.cfg -v
+python iHBEQuant.py                  # use default INPUT.cfg
+python iHBEQuant.py -c myrun.cfg     # custom config file
+python iHBEQuant.py -c myrun.cfg -v  # verbose: print all .gjf filenames
 ```
 
 ### Command-Line Arguments
@@ -118,19 +115,19 @@ python iHBEQuant.py -c myrun.cfg -v
 
 ## Configuration
 
-All run parameters are controlled through a plain-text `INPUT.cfg` file. Inline `#` comments are supported and stripped automatically. Sections can appear with or without blank lines between them.
+All run parameters are controlled through a plain-text `INPUT.cfg` file. Inline `#` comments are stripped automatically.
 
 ```ini
 [SYSTEM]
-xyz_file  = F1N2.xyz        # space-separated list of .xyz files; processed one by one
+xyz_file  = F1O2.xyz        # space-separated list of .xyz files
 nproc     = 8               # CPU cores for Gaussian
 mem       = 8GB             # memory for Gaussian
 
 [THEORY]
 method       = MP2          # DFT functional, MP2, CCSD(T), etc.
 basis        = aug-cc-pVTZ  # basis set
-keywords     = scf=tight    # additional Gaussian route keywords (optional)
-charge       = 0            # total charge of the full cluster (0 = neutral)
+keywords     = scf=tight    # extra Gaussian route keywords (appended to every .gjf)
+charge       = 0            # total charge of the full cluster
 multiplicity = 1            # spin multiplicity (1 = singlet, 2 = doublet, ...)
 
 [THRESHOLDS]
@@ -142,123 +139,191 @@ neighbor_th  = 2.5          # covalent neighbor cutoff (Å)
 
 [RUN]
 mode = gen
-# gen  →  write .gjf input files only         (no Gaussian run)
-# run  →  write .gjf files + submit to g16    (full calculation)
-# cal  →  parse existing .log files only      (no new submission)
+# gen  →  write .gjf input files only
+# run  →  write .gjf files + submit to g16
+# cal  →  parse existing .log files only
 ```
 
-> **Important:** `charge` and `multiplicity` apply to the full cluster. All fragment calculations (rmD, rmA, dimerDA, etc.) inherit the same values. If your system contains ions or open-shell species, adjust these fields accordingly. iHBEQuant does **not** auto-detect charge or multiplicity from the XYZ file.
-
-> **Tip:** Extra Gaussian route keywords (e.g., `scf=tight`, `int=ultrafine`) can be placed in the `keywords` field or appended directly to the `basis` field — both are handled correctly.
+> **Important:** `charge` and `multiplicity` apply to the full cluster and are inherited by all fragment calculations. iHBEQuant does **not** auto-detect these from the XYZ file.
 
 ---
 
 ## Output
 
-For each input XYZ file (e.g., `F1N2.xyz`), iHBEQuant creates a subdirectory `F1N2/` containing:
+For each input XYZ file (e.g., `F1O2.xyz`), a subdirectory `F1O2/` is created containing:
 
 ### Gaussian Input Files
 
-| File | Contents |
-|------|----------|
-| `F1N2_cluster.gjf` | Full N-monomer cluster (single-point) |
-| `F1N2_M1.gjf`, `_M2.gjf`, … | Individual monomers (for total binding energy) |
-| `F1N2_HB1_rmD.gjf` | Cluster with donor monomer removed |
-| `F1N2_HB1_rmA.gjf` | Cluster with acceptor monomer removed |
-| `F1N2_HB1_rmDA.gjf` | Cluster with both donor and acceptor removed |
-| `F1N2_HB1_dimerDA.gjf` | Donor + acceptor dimer |
-| `F1N2_HB1_dimerD.gjf` | Donor monomer only |
-| `F1N2_HB1_dimerA.gjf` | Acceptor monomer only |
+| File | Role |
+|------|------|
+| `F1O2_M.xyz` | Copy of the input geometry (parent molecule reference) |
+| `F1O2_M.gjf` | Full N-monomer cluster single-point |
+| `F1O2_mono_M1.gjf`, `_mono_M2.gjf`, … | Isolated monomers |
+| `HB1_F1O2_frag_M1.gjf` | Primary fragment — donor side (acceptor removed) |
+| `HB1_F1O2_frag_M3.gjf` | Primary fragment — acceptor side (donor removed) |
+| `HB1_F1O2_frag_M1M3.gjf` | Overlap fragment — both donor and acceptor removed |
+| `HB1_F1O2_dimer_M1M3.gjf` | Isolated donor–acceptor dimer |
 
-Files `HB1_*` are replicated as `HB2_*`, `HB3_*`, … for every detected hydrogen bond.
+Files prefixed `HB1_` are replicated as `HB2_`, `HB3_`, … for each detected hydrogen bond.
 
-### Summary and Coordinates
+### Summary File
 
-| File | Contents |
-|------|----------|
-| `F1N2_summary.txt` | Full energy table, run header, and per-HB calculation details |
-| `F1N2_coords.xyz` | All fragment geometries in multi-block XYZ format for visualization |
+`F1O2_summary.txt` contains the run header (method, thresholds, statistics), the HB energy table, per-HB calculation details with raw Hartree energies, and all fragment coordinates in XYZ format.
 
 ---
 
 ## Methodology
 
-iHBEQuant implements the **Molecular Tailoring Approach** for individual hydrogen bond energies as formulated by Ahirwar, Gadre, and Deshmukh (2020). For a hydrogen bond between donor monomer D and acceptor monomer A in an N-monomer cluster:
+iHBEQuant implements the **Molecular Tailoring Approach** for individual hydrogen bond energies as formulated by Ahirwar, Gadre, and Deshmukh (2020) and extended by Patkar et al. (2021–2022).
 
-```
-MTA_HBE  =  | E_cluster − ( E_rmD + E_rmA − E_rmDA ) |  ×  627.51 kcal/mol
+For HB number $n$ between donor monomer **D** (index $d$) and acceptor monomer **A** (index $a$) in an $N$-monomer cluster, seven single-point energies are required:
 
-Dimer    =  | E_dimerD + E_dimerA − E_dimerDA |  ×  627.51 kcal/mol
+### Fragment Definitions
 
-Coop     =  | MTA_HBE − Dimer |
-```
+| Symbol | File generated | Description |
+|--------|---------------|-------------|
+| $E_{\mathrm{M}}$ | F1O2\_M.gjf | Full $N$-monomer parent cluster |
+| $E_{\mathrm{frag\text{-}D}}$ | HBn\_F1O2\_frag\_M*d*.gjf | Cluster with acceptor removed (donor side) |
+| $E_{\mathrm{frag\text{-}A}}$ | HBn\_F1O2\_frag\_M*a*.gjf | Cluster with donor removed (acceptor side) |
+| $E_{\mathrm{frag\text{-}DA}}$ | HBn\_F1O2\_frag\_M*d*_M*a*.gjf | Cluster with both donor and acceptor removed |
+| $E_{\mathrm{dimer}}$ | HBn\_F1O2\_dimer\_M*d*_M*a*.gjf | Isolated donor–acceptor dimer |
+| $E_{\mathrm{mono\text{-}D}}$ | F1O2\_mono\_M*d*.gjf | Isolated donor monomer |
+| $E_{\mathrm{mono\text{-}A}}$ | F1O2\_mono\_M*a*.gjf | Isolated acceptor monomer |
 
-**Symbol definitions:**
+---
 
-| Symbol | Meaning |
-|--------|---------|
-| `E_cluster` | Total energy of the full N-monomer cluster |
-| `E_rmD` | Energy of the cluster with the donor monomer removed |
-| `E_rmA` | Energy of the cluster with the acceptor monomer removed |
-| `E_rmDA` | Energy of the cluster with both donor and acceptor removed |
-| `E_dimerDA` | Energy of the isolated donor–acceptor dimer |
-| `E_dimerD` | Energy of the isolated donor monomer |
-| `E_dimerA` | Energy of the isolated acceptor monomer |
+### 1. MTA Hydrogen Bond Energy
 
-**MTA_HBE** captures the full in-cluster contribution of a hydrogen bond, including effects from all other monomers. **Dimer** is the pairwise interaction energy of the donor–acceptor pair in isolation. **Coop** is the difference between the two, quantifying how much the surrounding cluster environment strengthens or weakens the hydrogen bond — i.e., the cooperativity (Coop > 0) or anti-cooperativity (Coop < 0).
+The individual HB energy of HB $n$ within the full cluster environment:
 
-The **MTA error** provides an internal consistency check:
+$$\boxed{
+E_{\mathrm{MTA\text{-}HB}n} \;=\;
+\Bigl[\,\bigl(E_{\mathrm{frag\text{-}D}} + E_{\mathrm{frag\text{-}A}} - E_{\mathrm{frag\text{-}DA}}\bigr)
+\;-\ E_{\mathrm{M}}\,\Bigr]
+\;\times\ 627.51 \;\;\text{kcal mol}^{-1}
+}$$
 
-```
-MTA error  =  | Binding energy | − Σ(MTA_HBE)
-```
+The three-fragment inclusion–exclusion $(E_{\mathrm{frag\text{-}D}} + E_{\mathrm{frag\text{-}A}} - E_{\mathrm{frag\text{-}DA}})$ reconstructs the energy contribution of the D···A pair within the cluster, and subtracting $E_{\mathrm{M}}$ isolates the individual HB contribution.
 
-A small per-HB MTA error (ideally < 1 kcal/mol) confirms that the fragmentation scheme is self-consistent.
+---
+
+### 2. Dimer Hydrogen Bond Energy
+
+The pairwise interaction energy of the isolated donor–acceptor pair in vacuum:
+
+$$\boxed{
+E_{\mathrm{Dimer\text{-}HB}n} \;=\;
+\Bigl[\,E_{\mathrm{mono\text{-}D}} + E_{\mathrm{mono\text{-}A}} - E_{\mathrm{dimer}}\,\Bigr]
+\;\times\; 627.51 \;\;\text{kcal mol}^{-1}
+}$$
+
+This is the conventional counterpoise-free interaction energy of the donor–acceptor pair with no influence from the remaining monomers.
+
+---
+
+### 3. Cooperativity Energy
+
+The cooperative enhancement (positive) or anti-cooperative weakening (negative) arising from the surrounding cluster environment:
+
+$$\boxed{
+E_{\mathrm{Coop\text{-}HB}n} \;=\; E_{\mathrm{MTA\text{-}HB}n} \;-\; E_{\mathrm{Dimer\text{-}HB}n}
+}$$
+
+| Sign | Interpretation |
+|------|---------------|
+| $E_{\mathrm{Coop}} > 0$ | Cluster environment **strengthens** the HB (cooperative) |
+| $E_{\mathrm{Coop}} < 0$ | Cluster environment **weakens** the HB (anti-cooperative) |
+| $E_{\mathrm{Coop}} = 0$ | No environmental influence (purely pairwise) |
+
+---
+
+### 4. Total Cluster Binding Energy
+
+The stabilization energy of the $N$-monomer cluster relative to infinitely separated monomers:
+
+$$\boxed{
+\Delta E_{\mathrm{bind}} \;=\;
+\left(\, E_{\mathrm{M}} \;-\; \sum_{i=1}^{N} E_{\mathrm{mono\text{-}i}} \,\right)
+\;\times\; 627.51 \;\;\text{kcal mol}^{-1}
+}$$
+
+**Average binding energy per hydrogen bond** ($n_{\mathrm{HB}}$ = number of detected HBs):
+
+$$\boxed{
+\overline{E}_{\mathrm{bind/HB}} \;=\; \frac{\Delta E_{\mathrm{bind}}}{n_{\mathrm{HB}}}
+}$$
+
+**Average MTA energy per hydrogen bond:**
+
+$$\boxed{
+\overline{E}_{\mathrm{MTA/HB}} \;=\; \frac{1}{n_{\mathrm{HB}}} \sum_{n=1}^{n_{\mathrm{HB}}} E_{\mathrm{MTA\text{-}HB}n}
+}$$
+
+---
+
+### 5. MTA Error — Internal Consistency Check
+
+The MTA error quantifies the deviation between the total binding energy and the sum of individual HBEs, serving as a self-consistency diagnostic:
+
+$$\boxed{
+\varepsilon_{\mathrm{MTA}} \;=\;
+\left|\; |\Delta E_{\mathrm{bind}}| \;-\; \sum_{n=1}^{n_{\mathrm{HB}}} E_{\mathrm{MTA\text{-}HB}n} \;\right|
+}$$
+
+**Per-HB MTA error:**
+
+$$\boxed{
+\varepsilon_{\mathrm{MTA/HB}} \;=\; \frac{\varepsilon_{\mathrm{MTA}}}{n_{\mathrm{HB}}}
+}$$
+
+A small per-HB error (ideally $\varepsilon_{\mathrm{MTA/HB}} < 1\;\text{kcal mol}^{-1}$) confirms that the fragmentation scheme is self-consistent and that no hydrogen bonds have been missed or double-counted.
 
 ---
 
 ## Example
 
-The repository includes a worked example: the hydrogen-bonded trimer **F1N2** (HF · 2NH₃), comprising 10 atoms and 3 monomers with 3 hydrogen bonds, computed at MP2/aug-cc-pVTZ.
+The repository includes a worked example: the cyclic hydrogen-bonded trimer **F1O2** (HF · 2H₂O), comprising 8 atoms and 3 monomers with 3 hydrogen bonds, computed at MP2/aug-cc-pVTZ with `scf=tight`.
 
-**Input: `F1N2.xyz`**
-
-```
-10
-N2H7F
-F   -0.897087   1.409019   0.000010
-H   -1.064941   0.446720   0.000039
-N    1.854670  -0.137672  -0.000046
-H    2.462588  -0.055488   0.815054
-H    1.256831   0.693215  -0.000709
-H    2.464218  -0.055691  -0.813946
-N   -1.029638  -1.167465  -0.000014
-H   -1.405133  -1.642027  -0.819856
-H   -1.405101  -1.642103   0.819800
-H   -0.009905  -1.289832  -0.000044
-```
-
-**Results (from `F1N2_summary.txt`):**
+**Input: `F1O2.xyz`**
 
 ```
-  File            : F1N2.xyz                   Mode : calc    Run Time : 2026-03-09 20:17:40
-  Level of Theory : MP2/aug-cc-pVTZ scf=tight  No. of monomers: 3     No. of HB: 3
-  Binding energy  : 22.216 kcal/mol            Avg per HB     : 7.405 kcal/mol
-  MTA_HBEs Sum    : 26.598 kcal/mol
-  Total MTA error : 4.382 kcal/mol             Per-HB error   : 1.461 kcal/mol
+8
+F1O2
+O    1.636242   0.060448   0.103696
+H    1.108561  -0.755119   0.053012
+H    2.377032  -0.081664  -0.498399
+O   -0.852903   1.235815  -0.127148
+H   -1.144618   1.756688   0.632186
+H    0.122702   1.191890  -0.054566
+F   -0.867229  -1.330843   0.007003
+H   -1.042224  -0.390985  -0.036243
+```
 
-+-----+------------------+----------+----------+-----------+---------------+---------------+---------------+
-| HB# |     D-H...A      |  D-H(A)  | H...A(A) |Angle(deg) |    MTA_HBE    |     Dimer     |     Coop      |
-+-----+------------------+----------+----------+-----------+---------------+---------------+---------------+
-|  1  |    F1-H2...N7    |  0.977   |  1.615   |  168.853  |    16.292     |    14.101     |     2.191     |
-|  2  |    N3-H5...F1    |  1.024   |  2.270   |  144.119  |     5.048     |     2.857     |     2.191     |
-|  3  |   N7-H10...N3    |  1.027   |  2.192   |  141.444  |     5.258     |     3.067     |     2.191     |
-+-----+------------------+----------+----------+-----------+---------------+---------------+---------------+
+**Results (from `F1O2_summary.txt`):**
+
+```
+  Run Time          : 2026-03-11 16:36:24                 No. of monomers     : 3
+  File              : F1O2.xyz                            No. of HB           : 3
+  Mode              : calc                                Binding energy      : 19.891
+  Level of Theory   : MP2/aug-cc-pVTZ  scf=tight          Avg per HB          : 6.630
+  hb_min_dist       : 1.2                                 MTA_HBEs Sum        : 25.672
+  hb_max_dist       : 2.3                                 Avg per MTA_HB      : 8.557
+  hb_min_angle      : 120.0                               Total MTA error     : 5.781
+  hb_max_angle      : 180.0                               Per-HB error        : 1.927
+  neighbor_th       : 2.5                                 # All energies in kcal/mol
+
++-----+------------------+----------+----------+----------+-----------+---------------+---------------+---------------+
+| HB# |     D-H...A      |  D-H(A)  | H...A(A) | A...D(A) |Angle(deg) |    MTA_HBE    |     Dimer     |     Coop      |
++-----+------------------+----------+----------+----------+-----------+---------------+---------------+---------------+
+|  1  |    O1-H3...F7    |  0.973   |  2.058   |  2.866   |  139.144  |     6.309     |     3.418     |     2.890     |
+|  2  |    O4-H5...O1    |  0.979   |  1.896   |  2.762   |  145.904  |     7.623     |     4.732     |     2.890     |
+|  3  |    F7-H8...O4    |  0.957   |  1.640   |  2.570   |  162.827  |    11.740     |     8.850     |     2.890     |
++-----+------------------+----------+----------+----------+-----------+---------------+---------------+---------------+
 ```
 
 All energies in kcal/mol. Distances in Ångströms.
 
-HB1 (F–H···N, strongest at 16.3 kcal/mol) is the primary hydrogen bond; HB2 and HB3 are N–H···F and N–H···N contacts with significant cooperative enhancement (~2.2 kcal/mol each).
+HB3 (F–H···O, strongest at 11.7 kcal/mol) is the dominant interaction. All three HBs show equal cooperativity (2.890 kcal/mol), confirming the cyclic cooperative character of the trimer. The MTA error of 1.927 kcal/mol per HB is consistent with the basis set superposition inherent to the aug-cc-pVTZ fragmentation.
 
 ---
 
@@ -266,17 +331,15 @@ HB1 (F–H···N, strongest at 16.3 kcal/mol) is the primary hydrogen bond; HB2
 
 If you use iHBEQuant in published work, please cite:
 
-1. Ahirwar MB; Gadre SR; Deshmukh MM *J. Phys. Chem. A* **2020**, *124*, 6699–6706. 
-2. Patkar D; Ahirwar MB; Deshmukh MM *ChemPhysChem* **2022**, *23*, e202200476.
-3. Patkar D; Ahirwar MB; Deshmukh MM *ChemPhysChem* **2022**, *23*, e202200143.
-4. Patkar D; Ahirwar MB; Deshmukh MM *New J. Chem.* **2022**, *46*, 2368–2379.
-5. Patkar D; Ahirwar MB; Gadre SR; Deshmukh MM *J. Phys. Chem. A* **2021**, *125*, 8836–8845.
+1. Patkar D; Ahirwar MB; Deshmukh MM *ChemPhysChem* **2022**, *23*, e202200476.
+2. Patkar D; Ahirwar MB; Deshmukh MM *ChemPhysChem* **2022**, *23*, e202200143.
+3. Patkar D; Ahirwar MB; Deshmukh MM *New J. Chem.* **2022**, *46*, 2368–2379.
 
 ---
 
 ## Author
 
-**Dr. Deepak Patkar**  
+**Deepak Patkar**  
 
 For questions, bug reports, or feature suggestions, please open a [GitHub Issue](../../issues) or submit a pull request.
 
