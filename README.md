@@ -43,16 +43,7 @@
 
 ## Overview
 
-Hydrogen bonds govern molecular recognition, crystal packing, protein folding, and the physical properties of liquids and solids. Standard quantum chemical calculations return only a *total* interaction energy for a cluster, making it impossible to directly assess the role of each individual hydrogen bond.
-
-**iHBEQuant** solves this by implementing the **Molecular Tailoring Approach (MTA)** for automated individual hydrogen bond energy (HBE) quantification. Given a cluster geometry in XYZ format, it:
-
-1. Detects all monomers and hydrogen bonds from geometry
-2. Generates all required Gaussian 16 input files
-3. Submits, monitors, and parses quantum chemical calculations
-4. Reports three energy components per HB — MTA energy, dimer energy, and cooperativity — plus cluster-level binding energy and MTA self-consistency diagnostics
-
-No empirical parameters. No external libraries. Pure Python standard library.
+Hydrogen bonds govern molecular recognition, crystal packing, protein folding, and the physical properties of liquids and solids. Standard quantum chemical calculations return only a *total* interaction energy for a cluster, making it impossible to directly assess the role of each individual hydrogen bond. **iHBEQuant** solves this by implementing the **Molecular Tailoring Approach (MTA)** for automated individual hydrogen bond energy (HBE) quantification. Given a cluster geometry in XYZ format, it:
 
 ---
 
@@ -176,7 +167,6 @@ $$\boxed{
 E_\text{HB}^\text{AErr} \;=\; \frac{E_\text{HB}^\text{Err}}{n_\text{HB}}
 }$$
 
-A small $E_\text{HB}^\text{AErr}$ (typically $< 3$–$4\ \text{kcal mol}^{-1}$) confirms that the fragmentation is self-consistent and no hydrogen bonds have been missed or double-counted.
 
 ---
 
@@ -414,7 +404,6 @@ All four HBs show **positive cooperativity**, confirming the cyclic cooperative 
 - **Charge and multiplicity** set in `[THEORY]` are applied uniformly to all fragments. For charged or open-shell clusters, set these carefully — iHBEQuant does not attempt to assign partial charges to individual fragments.
 - **MTA additivity error** arises from many-body terms beyond the pairwise level. Strong cooperativity or compact cyclic geometries typically give larger $E_\text{HB}^\text{AErr}$. Values below ~3–4 kcal mol⁻¹ indicate reliable decomposition.
 - **Gaussian 16 only** — the script calls `g16`. To use Gaussian 09, change the `G16` variable at the top of the script.
-- **No BSSE correction** (Boys–Bernardi counterpoise) is applied. For weakly-bound systems, consider computing corrected energies externally and post-processing with `mode=cal`.
 
 ---
 
