@@ -527,7 +527,7 @@ def compute_hb_energy(hb, parent_e, mono_es, frag_es, overlap_es, dimer_es):
     return mta_kcal, dimer_kcal, coop_kcal
 
 # ----------------------------------------------------------------------
-# Output formatting (unchanged except summary prints thresholds)
+# Output formatting (modified: indices from .gjf order)
 # ----------------------------------------------------------------------
 def fmt(v, dec=3):
     return f"{v:.{dec}f}" if v is not None else "pending"
@@ -566,6 +566,15 @@ def write_summary(path, records, atoms, monomers, mono_e, cluster_e, cfg, xyz, m
                   run_time, prefix, out_dir):
     n_hb   = len(records)
     n_mono = len(monomers)
+
+    # --- Build mapping from original atom index to position in parent .gjf file ---
+    all_idx = [i for m in monomers for i in m]   # order in which atoms appear in _M.gjf
+    gjf_order = {orig: pos for pos, orig in enumerate(all_idx)}  # orig -> 0-based position
+
+    def get_gjf_label(orig_idx):
+        """Return label like 'F1' where number is 1-based position in parent .gjf file."""
+        gjf_pos = gjf_order[orig_idx] + 1
+        return f"{atoms[orig_idx]['s']}{gjf_pos}"
 
     if None not in [cluster_e] + mono_e and mode in ("run", "calc"):
         be_kcal = (cluster_e - sum(mono_e)) * H2KCAL
@@ -607,10 +616,11 @@ def write_summary(path, records, atoms, monomers, mono_e, cluster_e, cfg, xyz, m
     table_rows = []
     for r in records:
         hb, res = r["hb"], r["res"]
-        hb_type     = f"HB{r['n']} [{lbl(hb['di'], atoms)}-{lbl(hb['hi'], atoms)}...{lbl(hb['ai'], atoms)}]"
-        donor_atoms = [lbl(i, atoms) for i in monomers[hb['dm']]]
+        # Use get_gjf_label for atom indices in HB type
+        hb_type     = f"HB{r['n']} [{get_gjf_label(hb['di'])}-{get_gjf_label(hb['hi'])}...{get_gjf_label(hb['ai'])}]"
+        donor_atoms = [get_gjf_label(i) for i in monomers[hb['dm']]]
         donor       = f"M{hb['dm']+1} [{' '.join(donor_atoms)}]"
-        acc_atoms   = [lbl(i, atoms) for i in monomers[hb['am']]]
+        acc_atoms   = [get_gjf_label(i) for i in monomers[hb['am']]]
         acceptor    = f"M{hb['am']+1} [{' '.join(acc_atoms)}]"
         row = {
             "HB Type":    hb_type,
@@ -650,7 +660,8 @@ def write_summary(path, records, atoms, monomers, mono_e, cluster_e, cfg, xyz, m
         hb, res = r["hb"], r["res"]
         mi, mj  = hb["dm"], hb["am"]
         tag     = f"HB{r['n']}"
-        label   = f"{lbl(hb['di'], atoms)}-{lbl(hb['hi'], atoms)}...{lbl(hb['ai'], atoms)}"
+        # Use gjf label for detailed per-HB line as well
+        label   = f"{get_gjf_label(hb['di'])}-{get_gjf_label(hb['hi'])}...{get_gjf_label(hb['ai'])}"
         T       = "-"*95
         lines  += [f"  {tag}: {label}", T]
 
@@ -680,7 +691,8 @@ def write_summary(path, records, atoms, monomers, mono_e, cluster_e, cfg, xyz, m
             right = f"    {rl:<12}  {fmt(rv,6)}" if rl else "                              # Hartree"
             lines.append(f"{left:<42}{right}")
 
-        erow("parent_M",          parent_e_loc,  f"dimer_M{mi+1}M{mj+1}",    dimer_e_loc)
+        dimer_label = os.path.splitext(os.path.basename(dim_gjf_path))[0].replace(f"{prefix}_", "")
+        erow("parent_M",          parent_e_loc,  dimer_label,     dimer_e_loc)
         erow(f"frag_M{mi+1}",     frag_mi_e,     f"mono_M{mi+1}", mono_mi_e)
         erow(f"frag_M{mj+1}",     frag_mj_e,     f"mono_M{mj+1}", mono_mj_e)
         erow(f"frag_M{mi+1}M{mj+1}", overlap_e_loc)
